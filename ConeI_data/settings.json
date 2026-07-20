@@ -1,0 +1,19 @@
+{
+  "values": {
+    "cone_color": "",
+    "cone_count": "",
+    "tip_confidence": "5",
+    "top_confidence": "45",
+    "bottom_confidence": "45",
+    "tip_images_selected": []
+  },
+  "locked": {
+    "cone_color": false,
+    "cone_count": false,
+    "tip_confidence": false,
+    "top_confidence": false,
+    "bottom_confidence": false,
+    "tip_images_selected": false
+  },
+  "training_mode": false
+}

@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Texa • Reports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- reuse your theme -->
+    <link rel="stylesheet" href="../static/css/controller.css">
+    <link rel="stylesheet" href="../static/css/model.css">
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+    <style>
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .field {
+            min-width: 180px;
+            flex: 1;
+        }
+
+        .label {
+            opacity: 0.85;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .input,select {
+            /* width: 100%;
+            padding: 10px 10px;
+            border-radius: 10px; */
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.25);
+            /* color: #fff; */
+        }
+
+        .btn {
+            cursor: pointer;
+        }
+
+        .kpi {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .kpi .box {
+            padding: 10px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .kpi .num {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .kpi .txt {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        th {
+            text-align: left;
+            opacity: 0.9;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            display: inline-block;
+        }
+
+        .good {
+            background: rgba(0, 255, 0, 0.10);
+        }
+
+        .bad {
+            background: rgba(255, 0, 0, 0.12);
+        }
+
+        .thumb {
+            width: 64px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            cursor: pointer;
+        }
+
+        .muted {
+            opacity: 0.7;
+        }
+
+        /* modal preview */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+
+        .modal .inner {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 10px;
+        }
+
+        .modal img {
+            max-width: 86vw;
+            max-height: 80vh;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .modal .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 6px 10px;
+        }
+
+        .xbtn {
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .footerbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .pager {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* ===== FILTER BAR FIX ===== */
+        .filters-card {
+            margin-bottom: 14px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            /* 🔥 spacing between filters */
+            align-items: end;
+        }
+
+        .filters-grid .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filters-grid .label {
+            margin-bottom: 6px;
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .filters-grid .input,
+        .filters-grid select {
+            /* height: 38px; */
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .filters-actions {
+            display: flex;
+            align-items: end;
+        }
+
+        .filters-actions .btn {
+            height: 38px;
+            width: 100%;
+        }
+        @keyframes indMove {
+            0%   { left: -35%; }
+            100% { left: 100%; }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <div class="card filters-card">
+            <div class="filters-grid">
+                <div style="font-size:18px; font-weight:800;">📊 Reports</div>
+                <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start;">
+  <button class="btn ghost" id="btnDownloadPDF">🧾 Download PDF</button>
+
+  <!-- ✅ progress bar (hidden by default) -->
+  <div id="pdfProgWrap" style="width:220px; display:none;">
+    <div style="display:flex; justify-content:space-between; font-size:12px; opacity:0.85; margin-bottom:6px;">
+      <span id="pdfProgText">Generating PDF…</span>
+      <span id="pdfProgPct" style="font-weight:800; color:#6e0c15;">0%</span>
+    </div>
+
+    <div style="height:8px; background:rgba(255,255,255,0.10); border-radius:999px; overflow:hidden;">
+      <div id="pdfProgBar" style="
+          height:100%;
+          width:0%;
+          background:#5e1a1a;
+          border-radius:999px;
+          transition:width 0.25s ease;
+      "></div>
+    </div>
+  </div>
+</div>
+
+                <!-- <div class="muted" id="bridgeState">Bridge: connecting…</div> -->
+            </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="card filters-card">
+            <div class="filters-grid">
+                <div class="field">
+                    <div class="label">Date From</div>
+                    <input type="date" class="input" id="date_from">
+                </div>
+                <div class="field">
+                    <div class="label">Date To</div>
+                    <input type="date" class="input" id="date_to">
+                </div>
+
+                <div class="field">
+                    <div class="label">Shift</div>
+                    <select id="shift_id" class="input">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <div class="label">Cone Color</div>
+                    <select id="color_id" class="input">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <div class="label">Cone Count</div>
+                    <select id="count_id" class="input">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <div class="label">Mode</div>
+                    <select id="mode" class="input">
+                        <option value="">All</option>
+                        <option value="tip">Tip Defects (bad)</option>
+                        <option value="top">Top Defects (bad)</option>
+                        <option value="bottom">Bottom Defects (bad)</option>
+                        <option value="image">Only With Images</option>
+                    </select>
+                </div>
+
+                <div class="filters-actions">
+                    <button class="btn primary" id="btnApply" style="width:100%;">✅ Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="card" style="margin-bottom:12px;">
+            <div class="kpi">
+                <div class="box">
+                    <div class="num" id="k_total">0</div>
+                    <div class="txt">Total Cones</div>
+                </div>
+                <div class="box">
+                    <div class="num" id="k_good">0</div>
+                    <div class="txt">All Good</div>
+                </div>
+                <div class="box">
+                    <div class="num" id="k_tip">0</div>
+                    <div class="txt">Tip Bad</div>
+                </div>
+                <div class="box">
+                    <div class="num" id="k_top">0</div>
+                    <div class="txt">Top Bad</div>
+                </div>
+                <div class="box">
+                    <div class="num" id="k_bottom">0</div>
+                    <div class="txt">Bottom Bad</div>
+                </div>
+                <div class="box">
+                    <div class="num" id="k_img">0</div>
+                    <div class="txt">With Images</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+                <div style="font-weight:800;">Entries</div>
+                <div class="pager">
+                    <button class="btn small" id="btnPrev">⬅ Prev</button>
+                    <div class="muted" id="pageInfo">Page 1</div>
+                    <button class="btn small" id="btnNext">Next ➡</button>
+                </div>
+            </div>
+
+            <div style="overflow:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:70px;">ID</th>
+                            <th style="width:170px;">Time</th>
+                            <th style="width:120px;">Shift</th>
+                            <th style="width:130px;">Color</th>
+                            <th style="width:130px;">Count</th>
+                            <th style="width:90px;">Tip</th>
+                            <th style="width:90px;">Top</th>
+                            <th style="width:90px;">Bottom</th>
+                            <th style="width:90px;">Image</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rows">
+                        <tr>
+                            <td colspan="9" class="muted">Loading…</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="footerbar">
+                <div class="muted" id="resultInfo">—</div>
+                <div class="muted">Limit:
+                    <select id="limit" class="input" style="width:90px; display:inline-block; padding:6px 8px;">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- IMAGE MODAL -->
+    <div class="modal" id="imgModal">
+        <div class="inner">
+            <div class="topbar">
+                <div class="muted" id="imgTitle">Preview</div>
+                <button class="xbtn" id="imgClose">✖ Close</button>
+            </div>
+            <img id="imgFull" src="" alt="preview">
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // --------- QWebChannel bridge ----------
+        let bridge = null;
+
+        // function initWebChannel(onReady) {
+        //     const MAX_TRIES = 200;
+        //     let tries = 0;
+
+        //     (function waitForQt() {
+        //         if (window.qt && window.qt.webChannelTransport) {
+        //             try {
+        //                 new QWebChannel(qt.webChannelTransport, function (ch) {
+        //                     bridge = ch.objects.bridge || null;
+        //                     onReady && onReady(bridge);
+        //                 });
+        //             } catch (e) {
+        //                 console.error("QWebChannel init failed:", e);
+        //                 onReady && onReady(null);
+        //             }
+        //             return;
+        //         }
+        //         if (++tries > MAX_TRIES) {
+        //             console.warn("qt not found");
+        //             onReady && onReady(null);
+        //             return;
+        //         }
+        //         setTimeout(waitForQt, 100);
+        //     })();
+        // }
+
+//modified by Gokul
+
+let pdfTimer = null;
+let pdfProg = 0;
+
+let pdfStartMs = 0;
+let pdfSlowMsgTimer = null;
+
+function pdfProgressStart() {
+  const wrap = document.getElementById("pdfProgWrap");
+  const pct  = document.getElementById("pdfProgPct");
+  const bar  = document.getElementById("pdfProgBar");
+  const txt  = document.getElementById("pdfProgText");
+  if (!wrap || !pct || !bar || !txt) return;
+
+  pdfStartMs = Date.now();
+
+  wrap.style.display = "block";
+  txt.textContent = "Generating PDF…";
+  pct.textContent = "";          // ✅ no percentage during long generation
+
+  // ✅ continuous animation (no stuck at 92)
+  bar.style.width = "35%";
+  bar.style.position = "relative";
+  bar.style.left = "-35%";
+  bar.style.transition = "none";
+  bar.style.animation = "indMove 1.1s ease-in-out infinite";
+
+  // after 8 sec show long message
+  if (pdfSlowMsgTimer) clearTimeout(pdfSlowMsgTimer);
+  pdfSlowMsgTimer = setTimeout(() => {
+    txt.textContent = "Please wait...";
+  }, 10000);
+}
+
+function pdfProgressDone(ok = true) {
+  const wrap = document.getElementById("pdfProgWrap");
+  const pct  = document.getElementById("pdfProgPct");
+  const bar  = document.getElementById("pdfProgBar");
+  const txt  = document.getElementById("pdfProgText");
+  if (!wrap || !pct || !bar || !txt) return;
+
+  if (pdfSlowMsgTimer) { clearTimeout(pdfSlowMsgTimer); pdfSlowMsgTimer = null; }
+
+  const elapsed = Date.now() - pdfStartMs;
+  const waitMore = Math.max(0, 1200 - elapsed);   // min show time
+
+  setTimeout(() => {
+    // stop animation
+    bar.style.animation = "none";
+    bar.style.left = "0";
+    bar.style.position = "relative";
+    bar.style.transition = "width 0.25s ease";
+
+    txt.textContent = ok ? "PDF Ready" : "PDF Failed";
+    pct.textContent = ok ? "100%" : "0%";
+    bar.style.width = ok ? "100%" : "0%";
+
+    setTimeout(() => {
+      wrap.style.display = "none";
+      txt.textContent = "Generating PDF…";
+      pct.textContent = "0%";
+      bar.style.width = "0%";
+      bar.style.left = "0";
+      bar.style.animation = "none";
+    }, 1200);
+  }, waitMore);
+}
+
+
+
+
+//modified by Gokul
+function initWebChannel(onReady) {
+    
+  const MAX_TRIES = 200;
+  let tries = 0;
+
+  (function waitForQt() {
+    if (window.qt && window.qt.webChannelTransport) {
+      try {
+        new QWebChannel(qt.webChannelTransport, function (ch) {
+          bridge = ch.objects.bridge || null;
+
+          // ✅ ADD HERE (listen only once)
+          if (bridge && bridge.pdfReady && bridge.pdfError) {
+
+            bridge.pdfReady.connect(function (fileUrl) {
+              try {
+                // trigger download/open
+                pdfProgressDone(true);
+                const a = document.createElement("a");
+                a.href = fileUrl;   // file:///...
+                a.download = "";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                toast("PDF exported ✓");
+              } catch (e) {
+                console.error(e);
+                toast("Download failed");
+              }
+            });
+
+            bridge.pdfError.connect(function (msg) {
+              console.error("PDF Error:", msg);
+              pdfProgressDone(false);
+              toast("PDF failed: " + msg);
+            });
+
+          }
+
+          // keep your existing callback
+          onReady && onReady(bridge);
+        });
+      } catch (e) {
+        console.error("QWebChannel init failed:", e);
+        onReady && onReady(null);
+      }
+      return;
+    }
+
+    if (++tries > MAX_TRIES) {
+      console.warn("qt not found");
+      onReady && onReady(null);
+      return;
+    }
+
+    setTimeout(waitForQt, 100);
+  })();
+}
+
+
+        // ---------- UI helpers ----------
+        const toast = (msg) => {
+            const t = document.getElementById("toast");
+            if (!t) { console.log("TOAST:", msg); return; }
+            t.textContent = msg;
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 1400);
+        };
+
+        const el = (id) => document.getElementById(id);
+
+        function todayISO() {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function toFileUrl(p) {
+            if (!p) return "";
+            // already http/file/qrc
+            if (/^(file:|http:|https:|qrc:)/i.test(p)) return p;
+            // windows path
+            if (/^[a-zA-Z]:\\/.test(p)) return "file:///" + p.replace(/\\/g, "/");
+            // linux absolute
+            if (p.startsWith("/")) return "file://" + p;
+            // relative -> keep as is (works if under static)
+            return p;
+        }
+
+        function badge(val) {
+            const v = String(val || "").toLowerCase();
+            const cls = (v === "bad") ? "badge bad" : (v === "good") ? "badge good" : "badge";
+            const txt = val || "—";
+            return `<span class="${cls}">${txt}</span>`;
+        }
+
+        // ---------- state ----------
+        let PAGE = 0;
+        let LIMIT = 50;
+
+        function getFilters() {
+            return {
+                date_from: el("date_from").value || todayISO(),
+                date_to: el("date_to").value || todayISO(),
+                shift_id: el("shift_id").value || "",
+                color_id: el("color_id").value || "",
+                count_id: el("count_id").value || "",
+                mode: el("mode").value || ""
+            };
+        }
+
+        // ---------- backend calls ----------
+        async function loadFilterOptions() {
+            if (!bridge || typeof bridge.reports_filter_options !== "function") return;
+
+            const raw = await bridge.reports_filter_options();
+            const data = JSON.parse(raw || "{}");
+
+            const shiftSel = el("shift_id");
+            const colorSel = el("color_id");
+            const countSel = el("count_id");
+
+            function fill(sel, arr) {
+                const current = sel.value;
+                sel.innerHTML = `<option value="">All</option>` + (arr || []).map(x =>
+                    `<option value="${x.id}">${x.name}</option>`
+                ).join("");
+                sel.value = current; // keep selection if any
+            }
+
+            fill(shiftSel, data.shifts);
+            fill(colorSel, data.colors);
+            fill(countSel, data.counts);
+        }
+
+        async function loadSummary() {
+            if (!bridge || typeof bridge.reports_summary !== "function") return;
+
+            const f = getFilters();
+            const raw = await bridge.reports_summary(f.date_from, f.date_to, f.shift_id, f.color_id, f.count_id);
+            const s = JSON.parse(raw || "{}");
+
+            el("k_total").textContent = String(s.total_cones ?? 0);
+            el("k_good").textContent = String(s.all_good ?? 0);
+            el("k_tip").textContent = String(s.tip_bad ?? 0);
+            el("k_top").textContent = String(s.top_bad ?? 0);
+            el("k_bottom").textContent = String(s.bottom_bad ?? 0);
+            el("k_img").textContent = String(s.with_images ?? 0);
+        }
+
+        async function loadRows() {
+            if (!bridge || typeof bridge.reports_list !== "function") return;
+
+            const f = getFilters();
+            const offset = PAGE * LIMIT;
+
+            const raw = await bridge.reports_list(
+                f.date_from, f.date_to,
+                f.shift_id, f.color_id, f.count_id,
+                f.mode,
+                LIMIT, offset
+            );
+
+            const rows = JSON.parse(raw || "[]");
+            const tbody = el("rows");
+
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="9" class="muted">No data</td></tr>`;
+                el("resultInfo").textContent = `0 results`;
+                el("pageInfo").textContent = `Page ${PAGE + 1}`;
+                return;
+            }
+
+            tbody.innerHTML = rows.map(r => {
+                const imgUrl = toFileUrl(r.img || "");
+                const thumb = imgUrl
+                    ? `<img class="thumb" src="${imgUrl}" data-full="${imgUrl}" data-title="ID ${r.id}" />`
+                    : `<span class="muted">—</span>`;
+
+                return `
+          <tr>
+            <td>${r.id}</td>
+            <td>${r.created_at || ""}</td>
+            <td>${r.shift || ""}</td>
+            <td>${r.cone_color || ""}</td>
+            <td>${r.cone_count || ""}</td>
+            <td>${badge(r.tip)}</td>
+            <td>${badge(r.top)}</td>
+            <td>${badge(r.bottom)}</td>
+            <td>${thumb}</td>
+          </tr>
+        `;
+            }).join("");
+
+            // bind thumbnail clicks
+            tbody.querySelectorAll(".thumb").forEach(img => {
+                img.addEventListener("click", () => {
+                    el("imgFull").src = img.dataset.full || "";
+                    el("imgTitle").textContent = img.dataset.title || "Preview";
+                    el("imgModal").style.display = "flex";
+                });
+            });
+
+            el("resultInfo").textContent = `${rows.length} results (showing ${offset + 1} to ${offset + rows.length})`;
+            el("pageInfo").textContent = `Page ${PAGE + 1}`;
+        }
+
+        async function refreshAll(resetPage = false) {
+            if (resetPage) PAGE = 0;
+            try {
+                await loadSummary();
+                await loadRows();
+            } catch (e) {
+                console.error(e);
+                toast("Report load failed");
+            }
+        }
+
+
+        // document.getElementById("btnDownloadPDF")?.addEventListener("click", async () => {
+        //     try {
+        //         if (!bridge || typeof bridge.reports_export_pdf !== "function") {
+        //         toast("PDF export not available");
+        //         return;
+        //         }
+
+        //         const f = getFilters();
+
+        //         const fileUrl = await bridge.reports_export_pdf_async(
+        //         f.date_from, f.date_to,
+        //         f.shift_id, f.color_id, f.count_id,
+        //         f.mode
+        //         );
+
+        //         if (!fileUrl) {
+        //             toast("No data available for selected filters");
+        //             return;
+        //             }
+
+        //         // trigger open/download
+        //         const a = document.createElement("a");
+        //         a.href = fileUrl;   // file:///...
+        //         a.download = "";
+        //         document.body.appendChild(a);
+        //         a.click();
+        //         a.remove();
+
+        //         toast("PDF exported ✓");
+        //     } catch (e) {
+        //         console.error(e);
+        //         toast("PDF export error");
+        //     }
+        //     });
+
+        //modified by Gokul
+document.getElementById("btnDownloadPDF")?.addEventListener("click", async () => {
+  try {
+    if (!bridge || typeof bridge.reports_export_pdf_async !== "function") {
+      toast("PDF export not available");
+      return;
+    }
+
+    const f = getFilters();
+    pdfProgressStart();                 // ✅ show bar + animate
+    await bridge.reports_export_pdf_async(
+      f.date_from, f.date_to,
+      f.shift_id, f.color_id, f.count_id,
+      f.mode
+    );
+
+    // ✅ do NOT download here
+    // pdfReady signal will download
+  } catch (e) {
+    console.error(e);
+    pdfProgressDone(false);
+    toast("PDF export error");
+  }
+});
+
+
+        // ---------- boot ----------
+        document.addEventListener("DOMContentLoaded", () => {
+            // default dates: today
+            el("date_from").value = todayISO();
+            el("date_to").value = todayISO();
+
+            el("limit").addEventListener("change", async () => {
+                LIMIT = parseInt(el("limit").value || "50", 10);
+                await refreshAll(true);
+            });
+
+            el("btnApply").addEventListener("click", async () => {
+                await refreshAll(true);
+                toast("Applied");
+            });
+
+            el("btnPrev").addEventListener("click", async () => {
+                if (PAGE <= 0) return;
+                PAGE--;
+                await refreshAll(false);
+            });
+
+            el("btnNext").addEventListener("click", async () => {
+                PAGE++;
+                await refreshAll(false);
+            });
+
+            el("imgClose").addEventListener("click", () => {
+                el("imgModal").style.display = "none";
+                el("imgFull").src = "";
+            });
+
+            // connect bridge and load
+            initWebChannel(async (b) => {
+                // el("bridgeState").textContent = b ? "Bridge: connected" : "Bridge: not available";
+                if (!b) {
+                    toast("Bridge not ready");
+                    return;
+                }
+                try {
+                    await loadFilterOptions();
+                    await refreshAll(true);
+                } catch (e) {
+                    console.error(e);
+                    toast("Init failed");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

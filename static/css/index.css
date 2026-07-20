@@ -1,0 +1,375 @@
+ :root {
+    --maroon: #5F1F28;
+    --maroon-dark: #4a1720;
+    --maroon-hover: #9b0000;
+    --border: #650000;
+    --bg: #f4f4f4;
+    --card-bg: #ffffff;
+    --text-main: #222;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+}
+
+/* ============= APP LAYOUT ============= */
+.app {
+    height: 100vh;              /* exactly fill QWebEngine view */
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+header.header {
+    /* background: #ffffff; */
+    padding: 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;             /* don't let header shrink */
+}
+
+.header-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: #5F1F28;
+    text-align: center;
+    margin: 0;
+}
+
+.header-logo {
+    width: clamp(90px, 14vw, 120px);
+    height: auto;
+    border-radius: 6px;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: width 0.3s ease;
+}
+
+/* MAIN CONTENT AREA (SIDEBAR + PANELS) */
+.content {
+    flex: 1;
+    display: flex;
+    min-height: 0;              /* allow flex children to shrink */
+}
+
+/* SIDEBAR */
+
+
+.sidebar-btn,
+.sidebar button {
+    background: var(--maroon-dark);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background 0.25s ease, transform 0.25s ease,
+        box-shadow 0.25s ease;
+    margin-bottom: 12px; 
+}
+
+.sidebar-btn:hover,
+.sidebar button:hover {
+    background: var(--maroon-hover);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    transform: translateX(4px);
+}
+
+
+
+aside.sidebar {
+    width: 220px;
+    background: var(--maroon);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.sidebar button.emergency {
+    background: #b30000;
+    margin-top: auto;       /* keep this to push it down */
+}
+
+.sidebar p.cone_color {
+    /* background: #b30000; */
+    margin-top: auto;       /* keep this to push it down */
+}
+
+.sidebar button.emergency:hover {
+    background: #d00000;
+}
+
+/* MAIN PANEL AREA */
+main.main-area {
+    flex: 1;
+    padding: 0px 20px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;           /* keep everything inside 1280x800 */
+}
+
+.panel-row {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    min-height: 0;
+}
+
+/* CENTER PANEL */
+.center-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    min-height: 0;
+}
+
+/* THIS WAS height:450px – NOW FLEX BASED */
+.big-box {
+    width: 100%;
+    max-width: 700px;
+    flex: 1;                                   /* take available height */
+    background: var(--card-bg);
+    border: 4px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 260px;                         /* safety minimum */
+    max-height: calc(100% - 90px);             /* leave room for buttons */
+}
+
+.center-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.control-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    /* instead of gap: use negative horizontal margin
+    so child margins create even spacing */
+    margin: 0 -14px;
+}
+
+.circle-btn {
+    width: 105px;
+    height: 105px;
+    background: var(--maroon);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* manual spacing (this replaces gap) */
+    margin: 10px 14px 14px 14px;
+}
+
+.circle-btn:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+}
+
+/* RIGHT PANEL */
+aside.right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    /* gap: 20px; */
+    align-items: center;
+    min-width: 0;
+    min-height: 0;
+}
+
+.small-box1 {
+    width: 100%;
+    max-width: 250px;
+    max-height: 250px;
+    flex: 1;                                   /* share height */
+    background: #ffffff;
+    border: 3px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-bottom: 50px; */
+}
+.small-box2 {
+    width: 100%;
+    max-width: 250px;
+    max-height: 250px;
+    flex: 1;                                   /* share height */
+    background: #ffffff;
+    border: 3px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.small-box-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* margin-top: 30px; */
+    
+}
+
+
+.small-box-image2 {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* margin-top: 70px; */
+}
+
+/* ============= RESPONSIVE DESIGN ============= */
+
+@media (max-width: 1200px) {
+    /* let flex decide height, no fixed px */
+}
+
+@media (max-width: 992px) {
+    .panel-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    aside.right-panel {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .small-box {
+        max-width: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    aside.sidebar {
+        width: 200px;
+        gap: 25px;
+    }
+
+    .circle-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .content {
+        flex-direction: column;
+    }
+
+    aside.sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: stretch;
+        padding: 10px;
+        gap: 25px;
+    }
+
+    .sidebar-btn,
+    .sidebar button {
+        font-size: 14px;
+        padding: 10px;
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .sidebar button.emergency {
+        margin-top: 0;
+    }
+
+    main.main-area {
+        padding: 15px;
+    }
+
+    .panel-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .small-box {
+        max-width: 90%;
+    }
+
+    .circle-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 12px;
+    }
+
+    header.header {
+        justify-content: center;
+        padding: 15px 10px;
+    }
+
+    .header-logo {
+        width: clamp(70px, 22vw, 120px);
+        right: 12px;
+    }
+
+    .header-title {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 400px) {
+    .header-title {
+        font-size: 1.2rem;
+    }
+
+    .circle-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 11px;
+    }
+
+    .header-logo {
+        width: clamp(55px, 25vw, 100px);
+        right: 8px;
+    }
+}

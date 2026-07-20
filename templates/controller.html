@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Texa • Controller Status (Patched)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- <link rel="stylesheet" href="../static/all_min/css/all.min.css"> -->
+  <link rel="stylesheet" href="../static/css/controller.css">
+  <link rel="stylesheet" href="../static/css/model.css">
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="container">
+      <!-- camera card -->
+      <div class="camera-top spinner-card" id="cameraTop">
+        <div class="spinner-left">
+          <div class="camera-icon">📷</div>
+        </div>
+        <div class="spinner-body">
+          <div class="camera-title">Camera</div>
+          <div class="camera-sub" id="camMsg">Connecting…</div>
+        </div>
+        <div class="spinner-right">
+          <div class="spinner" id="camSpinner" aria-hidden="true"></div>
+          <div id="camToggle" class="pill off" role="button" aria-pressed="false"><span id="camOkText">Disconnected</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;margin-top:12px">
+        <div class="toolbar" role="toolbar" aria-label="Main controls">
+          <button id="btnModbus" class="btn primary">⚡ Check Modbus IO</button>
+          <button id="btnTrain" class="btn ghost">🎓 Training Mode</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div id="modbusArea" class="modbus-area" style="display:none">
+            <div class="panel-title">Modbus Controls</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px" class="modebtn">
+              <button id="btnCheckAll" class="btn small">Check All Channels</button>
+              <button id="btnCheckIndividual" class="btn small">Check Individual Channels</button>
+              <div style="flex:1"></div>
+            </div>
+
+            <div id="channelPanel" style="display:none">
+              <div class="panel-title" style="font-size:14px">Individual Channels</div>
+              <div class="two-boards" id="boardsWrap"></div>
+
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button id="btnResetIndividual" class="btn small">⟲ Reset</button>
+                <div id="allCheckNote" class="note" style="align-self:center;margin-left:8px"></div>
+              </div>
+
+              <div id="individualNote" class="note" style="margin-top:10px">
+                Click <strong>ON</strong> or <strong>OFF</strong> for each channel to set request.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="myModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <span class="close" id="modalClose" title="Close">&times;</span>
+      <div id="model-datas"></div>
+      <div class="modal-actions">
+        <div id="modalNote" class="note" style="display: flex;align-items: center;gap: 10px;"></div>
+          <button id="btnModalRefresh" class="btn small">🔄 Refresh</button>
+          <button id="btnModalClose2" class="btn small">Close</button>
+        </div>
+    </div>
+  </div>
+<div class="toast" id="toast"></div>
+  <script src="../static/js/controller.js"></script>
+</body>
+
+</html>

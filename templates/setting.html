@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Texa • Settings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- <link rel="stylesheet" href="../static/all_min/css/all.min.css"> -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link href="../static/css/setting.css" rel="stylesheet">
+<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header">
+    <div class="left">
+      <div>
+        <div class="title" style="font-size: 26px;">Settings</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-sub="quick"><i class="fa-solid fa-bolt"></i>Quick Setup</button>
+      <button class="tab" data-sub="entry"><i class="fa-solid fa-pen-to-square"></i>Tip Images</button>
+      <button class="tab" data-sub="shift"><i class="fa-solid fa-clock"></i>Shift</button>
+      
+    </div>
+  </div>
+
+  <!-- QUICK SETUP -->
+  <section id="sub-quick">
+    <div class="card">
+      <div class="head"><i class="fa-solid fa-sliders"></i><h3>Welcome • Quick Setup</h3></div>
+      <div class="body">
+
+        <!-- Two-column fields -->
+        <div class="qfields">
+
+          <div>
+            <div class="label">Cone Color:</div>
+            <div class="qrow">
+              <select class="select" id="cone_color">
+                <option value="white">White</option>
+                <option value="orange">Orange</option>
+                <!-- <option value="yellow">Yellow</option>
+                <option value="green">Green</option> -->
+              </select>
+              <button class="btn-mini ok" id="s_color" title="Save">✔</button>
+              <button class="btn-mini no" id="c_color" title="Clear">✖</button>
+            </div>
+          </div>
+          <!-- <br> -->
+
+          <div>
+            <div class="label">Cone Count:</div>
+            <div class="qrow">
+              <select class="select" id="cone_count">
+                <!-- <option value="16s">16s</option>
+                <option value="20s">20s</option> -->
+                <option value="24s">24s</option>
+                <option value="27s">27s</option>
+                <option value="40_2s">40/2s</option>
+                <!-- <option value="47s">47s</option> -->
+              </select>
+              <button class="btn-mini ok" id="s_count" title="Save">✔</button>
+              <button class="btn-mini no" id="c_count" title="Clear">✖</button>
+            </div>
+          </div>
+          <!-- <br> -->
+
+          <div>
+            <div class="label">Tip Confidence:</div>
+            <div class="qrow">
+              <select class="select" id="tip_confidence"></select>
+              <button class="btn-mini ok" id="s_tip_confidence" title="Save">✔</button>
+              <button class="btn-mini no" id="c_tip_confidence" title="Clear">✖</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="label">Top Confidence:</div>
+            <div class="qrow">
+              <select class="select" id="top_confidence"></select>
+              <button class="btn-mini ok" id="s_top_confidence" title="Save">✔</button>
+              <button class="btn-mini no" id="c_top_confidence" title="Clear">✖</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="label">Bottom Confidence:</div>
+            <div class="qrow">
+              <select class="select" id="bottom_confidence"></select>
+              <button class="btn-mini ok" id="s_bottom_confidence" title="Save">✔</button>
+              <button class="btn-mini no" id="c_bottom_confidence" title="Clear">✖</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+ <section id="sub-entry" style="display:none">
+  <div class="card">
+    <div class="head"><i class="fa-regular fa-square-plus"></i><h3>Tip Images</h3></div>
+    <div class="body">
+
+      <div style="display:flex; gap:10px; margin-bottom:10px;" class="tipsel">
+        <button class="btn primary" id="tip_save">Save Selected</button>
+        <button class="btn danger" id="tip_delete">Delete Selected</button>
+        <button class="btn ghost" id="tip_clear">Clear All</button>
+        <button class="btn ghost" id="tip_refresh">🔄 Refresh</button>
+        <div style="margin-left:auto; font-size:13px; opacity:0.8;">
+          Selected: <span id="tip_count">0</span>
+        </div>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row" id="defectImageContainer"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<section id="sub-shift" style="display:none">
+  <div class="card">
+    <div class="head">
+      <i class="fa-solid fa-clock"></i>
+      <h3>Shift Settings</h3>
+    </div>
+
+    <div class="body">
+
+      <!-- Two-column inputs -->
+      <div class="grid">
+        <div class="full">
+          <div class="label">Shift Name</div>
+          <input type="text" class="input" id="shift_name" placeholder="Morning / Evening / Night">
+        </div>
+
+        <div>
+          <div class="label">Start Time</div>
+          <input type="time" class="input" id="shift_start">
+        </div>
+
+        <div>
+          <div class="label">End Time</div>
+          <input type="time" class="input" id="shift_end">
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div style="display:flex; gap:10px; margin-top:12px; align-items:center;" class="tab_ls">
+        <button class="btn primary" id="shift_add">
+          <i class="fa-solid fa-plus"></i> Add
+        </button>
+
+        <button class="btn danger" id="shift_remove" disabled>
+          <i class="fa-solid fa-trash"></i> Remove
+        </button>
+
+
+        <button class="btn ghost" id="btnShiftMailReceivers">
+            📧 Shift Report Receivers
+        </button>
+
+
+        <div style="margin-left:auto; font-size:13px; opacity:0.85;">
+          Selected: <span id="shift_selected">None</span>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div style="margin-top:14px;">
+        <div class="label" style="margin-bottom:6px;">Shift List</div>
+
+        <div style="overflow:auto; border:1px solid rgba(255,255,255,0.08); border-radius:12px;">
+          <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.06); text-align:left;">
+                <th style="padding:10px;">ID</th>
+                <th style="padding:10px;">Shift</th>
+                <th style="padding:10px;">Start</th>
+                <th style="padding:10px;">End</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="shift_tbody">
+              <tr><td colspan="5" style="padding:12px; opacity:0.8;">No shifts added</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="../static/js/setting.js"></script>
+
+</body>
+</html>
