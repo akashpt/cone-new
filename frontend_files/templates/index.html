@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cone Inspection UI</title>
+    <link rel="stylesheet" href="../assets/css/index.css" />
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="topbar-logo">
+          <div class="logo-box">
+            <img src="../assets/logo/texa_logo.png" alt="Texa" />
+          </div>
+        </div>
+
+        <div class="topbar-center">
+          <span class="page-title">Thread Inspection</span>
+          <div class="waiting-pill">
+            <span class="waiting-dot"></span>
+            <span id="statusText">WAITING</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="storage-indicator" id="storageIndicator">
+            <div class="storage-title">Storage</div>
+            <span class="storage-pct" id="storagePct">-</span>
+            <div class="storage-bar-wrap">
+              <div class="storage-bar-fill" id="storageBarFill"></div>
+            </div>
+          </div>
+
+          <div class="machine_no_design">
+            <span class="job-display-label">Machine No:</span>
+            <span class="machine_number" id="displayMachineNo">Not configured</span>
+          </div>
+
+          <div class="dt-block">
+            <span id="dateValue" class="date">--/--/----</span>
+            <span id="timeValue" class="time">--:--:--</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="body-wrap">
+        <aside class="sidebar">
+          <button class="sidebar-btn" onclick="openController()">
+            <span class="nav-mark">C</span>
+            <span>Controller</span>
+          </button>
+          <button class="sidebar-btn" onclick="openReport()">
+            <span class="nav-mark">R</span>
+            <span>Reports</span>
+          </button>
+          <button class="sidebar-btn" onclick="openSetting()">
+            <span class="nav-mark">S</span>
+            <span>Settings</span>
+          </button>
+
+          <div class="score-card">
+            <span class="score-label">Total</span>
+            <span class="score">0</span>
+          </div>
+        </aside>
+
+        <main class="main-area">
+          <header class="header">
+            <div class="header-title">Cone Inspection System</div>
+            <img src="../assets/logo/texa_logo.png" alt="Company Logo" class="header-logo" />
+          </header>
+
+          <div class="panel-row">
+            <section class="center-panel" aria-label="Main image and controls">
+              <div class="big-box">
+                <img id="cameraFeed" src="" alt="Main View" class="center-image" />
+              </div>
+
+              <div class="control-buttons">
+                <button class="circle-btn start" id="btnStart">Start</button>
+                <button class="circle-btn stop" id="btnStop">Stop</button>
+                <button class="circle-btn reset" id="btnReset">Reset</button>
+              </div>
+            </section>
+
+            <aside class="right-panel" aria-label="Side image views">
+              <p>Thread Image</p>
+              <div class="small-box1">
+                <img src="" id="threadImg" alt="Thread View" class="small-box-image" />
+              </div>
+
+              <p>Ring Image</p>
+              <div class="small-box2">
+                <img src="" id="ringImg" alt="Ring View" class="small-box-image2" />
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      let bridge = null;
+      let lastUpdate = 0;
+
+      function showMessage(msg) {
+        const t = document.getElementById("toast");
+        if (!t) {
+          console.log("MESSAGE:", msg);
+          return;
+        }
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 1400);
+      }
+
+      new QWebChannel(qt.webChannelTransport, function (channel) {
+        bridge = channel.objects.bridge;
+
+        bridge.frame_signal.connect(function (base64Data) {
+          const now = Date.now();
+          if (now - lastUpdate < 50) return;
+          lastUpdate = now;
+
+          document.getElementById("cameraFeed").src =
+            "data:image/jpeg;base64," + base64Data;
+        });
+
+        bridge.frame_cone.connect(function (jsonStr) {
+          try {
+            const data = JSON.parse(jsonStr);
+            const threadImg = document.getElementById("threadImg");
+            const ringImg = document.getElementById("ringImg");
+
+            if (data.thread) {
+              threadImg.src = "data:image/jpeg;base64," + data.thread;
+            }
+            if (data.tip) {
+              ringImg.src = "data:image/jpeg;base64," + data.tip;
+            }
+          } catch (e) {
+            console.error("Invalid cone frame JSON:", e);
+          }
+        });
+      });
+
+      function openController() {
+        if (bridge) {
+          const result = bridge.showController();
+          if (!result) {
+            alert("Machine Running.");
+          }
+        } else {
+          alert("Bridge not connected.");
+        }
+      }
+
+      function openSetting() {
+        if (bridge) bridge.showSetting();
+        else alert("Bridge not connected.");
+      }
+
+      function openReport() {
+        if (bridge) bridge.showReport();
+        else alert("Bridge not connected.");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const btnStart = document.getElementById("btnStart");
+        const btnStop = document.getElementById("btnStop");
+        const btnReset = document.getElementById("btnReset");
+
+        btnStart.addEventListener("click", () => {
+          if (bridge && bridge.startCamera) {
+            bridge.startCamera().then(function (result) {
+              if (result === "camera") {
+                alert("Camera not connected.");
+              } else if (result === "Air_pressure") {
+                alert("Check the air pressure.");
+              } else if (result === "board_connection") {
+                alert("Check the board connection.");
+              }
+            });
+          }
+        });
+
+        btnStop.addEventListener("click", () => {
+          if (bridge && bridge.stopCamera) {
+            bridge.stopCamera();
+          }
+        });
+
+        btnReset.addEventListener("click", () => {
+          if (bridge && bridge.resetSystem) {
+            bridge.resetSystem();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

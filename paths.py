@@ -1,7 +1,7 @@
 import os, sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -32,10 +32,12 @@ def run_path() -> Path:
 
 APP_DIR = app_path()
 
-INDEX_HTML = APP_DIR / "templates/index.html"
-CONTROLLER_HTML = APP_DIR / "templates/controller.html"
-SETTING_HTML = APP_DIR / "templates/setting.html"
-REPORTS_HTML = APP_DIR / "templates/reports.html"
+FRONTEND_DIR = APP_DIR / "frontend_files"
+
+INDEX_HTML = FRONTEND_DIR / "templates/index.html"
+CONTROLLER_HTML = FRONTEND_DIR / "templates/controller.html"
+SETTING_HTML = FRONTEND_DIR / "templates/setting.html"
+REPORTS_HTML = FRONTEND_DIR / "templates/reports.html"
 
 
 RUN_DIR = run_path()
@@ -57,4 +59,3 @@ MAIL_JSON_PATH = RUN_DIR / "mailIdsForSendingReport.json"
 
 DEFECT_SAVE_DIR = RUN_DIR/ "defects"
 os.makedirs(DEFECT_SAVE_DIR, exist_ok=True)
-
